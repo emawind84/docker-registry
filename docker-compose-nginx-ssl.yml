@@ -2,12 +2,11 @@ version: "2"
 
 services:
   registry:
-    image: registry:2
+    build: registry
     container_name: "registry-srv"
     volumes:
-    - "./registry:/var/lib/registry/"
-    - "./auth/:/auth/"
-    - "./config.yml:/etc/docker/registry/config.yml"
+    - "${REGISTRY_HOME}:/var/lib/registry/"
+    - "${HTPASSWD_HOME}:/auth/"
     expose:
     - 5000
     environment:
@@ -18,13 +17,14 @@ services:
     restart: "unless-stopped"
 
   nginx:
-    build: ./nginx
+    build: nginx
     container_name: "registry-nginx"
     ports:
     - "5043:443"
     - "5044:444"
     volumes:
-    - ${REGISTRY_SSL_CERT_PATH}:/etc/nginx/ssl
+    - ${REGISTRY_SSL_CERT_PATH}:/etc/nginx/ssl/cert.pem
+    - ${REGISTRY_SSL_KEY_PATH}:/etc/nginx/ssl/privkey.pem
     depends_on:
     - registry
     restart: "unless-stopped"
